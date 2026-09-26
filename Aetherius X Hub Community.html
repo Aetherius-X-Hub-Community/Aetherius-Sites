@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aetherius X Hub Community</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#08090d;
+    --surface:#10121a;
+    --surface-2:#161923;
+    --surface-3:#1e2230;
+    --border:rgba(255,255,255,.06);
+    --border-strong:rgba(255,255,255,.12);
+    --text:#e8ebf2;
+    --muted:#8a92a6;
+    --blurple:#5865f2;
+    --blurple-2:#7c85ff;
+    --purple:#9d7bff;
+    --green:#23a55a;
+    --red:#ed4245;
+    --radius:16px;
+    --mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sidebar-width: 280px;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    display: flex;
+  }
+
+  /* Ambient Background */
+  .ambient-bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background: radial-gradient(circle at 15% 0%, rgba(88,101,242,0.12) 0%, transparent 45%),
+                radial-gradient(circle at 85% 100%, rgba(157,123,255,0.08) 0%, transparent 45%);
+  }
+
+  /* Layout */
+  .app-container { display: flex; width: 100%; min-height: 100vh; position: relative; z-index: 1; }
+
+  /* Sidebar */
+  .sidebar {
+    width: var(--sidebar-width);
+    background: rgba(16, 18, 26, 0.75);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    padding: 32px 20px;
+    position: fixed; top: 0; bottom: 0; left: 0; z-index: 100;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .brand {
+    display: flex; align-items: center; gap: 12px;
+    font-weight: 750; font-size: 17px; letter-spacing: -0.02em;
+    margin-bottom: 40px; padding-left: 8px;
+  }
+  .brand .logo-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--blurple), var(--purple));
+    box-shadow: 0 0 12px rgba(88,101,242,0.6);
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+  @keyframes pulse-glow {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 12px rgba(88,101,242,0.6); }
+    50% { transform: scale(1.15); box-shadow: 0 0 20px rgba(157,123,255,0.8); }
+  }
+
+  .nav-links { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .nav-link {
+    display: flex; align-items: center; gap: 14px;
+    padding: 13px 16px; border-radius: 12px;
+    color: var(--muted); text-decoration: none; font-size: 14.5px; font-weight: 600;
+    transition: all 0.25s; cursor: pointer; border: none; background: transparent;
+    width: 100%; text-align: left; font-family: inherit;
+    position: relative; overflow: hidden;
+  }
+  .nav-link::before {
+    content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+    width: 3px; height: 0; background: var(--blurple-2);
+    border-radius: 0 4px 4px 0; transition: height 0.25s;
+  }
+  .nav-link:hover { background: var(--surface-2); color: var(--text); }
+  .nav-link.active { background: rgba(88,101,242,0.1); color: var(--text); }
+  .nav-link.active::before { height: 60%; }
+  .nav-link svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.25s; }
+  .nav-link.active svg { stroke: var(--blurple-2); }
+
+  .sidebar-footer { margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border); }
+  .sidebar-footer .btn { width: 100%; margin-bottom: 12px; }
+  .version-tag { font-size: 11px; color: #4a5265; text-align: center; cursor: default; user-select: none; transition: color 0.2s; }
+  .version-tag:hover { color: #6a748a; }
+
+  /* Main Content */
+  .main-content { flex: 1; margin-left: var(--sidebar-width); padding: 0 48px 120px; max-width: 1300px; width: 100%; }
+
+  /* Hero */
+  .hero { padding: 90px 0 70px; text-align: center; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 9px 20px; border-radius: 999px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    font-size: 14px; color: var(--muted); margin-bottom: 32px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .pill:hover { border-color: var(--border-strong); box-shadow: 0 8px 40px rgba(88,101,242,0.15); }
+  .pill b { color: var(--text); font-weight: 750; font-variant-numeric: tabular-nums; }
+  .pill .live-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--green);
+    box-shadow: 0 0 0 4px rgba(35,165,90,0.15);
+    animation: pulse-green 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse-green { 50% { opacity: .4; box-shadow: 0 0 0 6px rgba(35,165,90,0.05); } }
+  .approx-badge { font-size: 10px; background: var(--surface-3); padding: 3px 8px; border-radius: 6px; color: var(--muted); font-weight: 600; letter-spacing: 0.02em; }
+
+  h1 {
+    font-size: clamp(38px, 6vw, 64px); line-height: 1.1;
+    letter-spacing: -0.04em; font-weight: 800; margin-bottom: 22px;
+  }
+  h1 span {
+    background: linear-gradient(135deg, #8b93ff 0%, #c4b5fd 50%, #7dd3fc 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .sub { color: var(--muted); font-size: 17px; line-height: 1.7; max-width: 580px; margin: 0 auto 40px; }
+
+  /* Grid & Cards */
+  .section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 28px; flex-wrap: wrap; }
+  .section-head h2 { font-size: 22px; font-weight: 750; letter-spacing: -0.02em; }
+  .section-head p { color: var(--muted); font-size: 14px; margin-top: 6px; }
+  .count-tag {
+    font-size: 13px; color: var(--muted); background: var(--surface-2);
+    border: 1px solid var(--border); padding: 7px 14px; border-radius: 999px; font-weight: 600;
+  }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 24px; padding-bottom: 60px; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 26px; display: flex; flex-direction: column;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) backwards;
+    position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(88,101,242,0.3), transparent);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .card:hover { border-color: var(--border-strong); transform: translateY(-4px); box-shadow: 0 20px 50px -20px rgba(0,0,0,0.8); }
+  .card:hover::before { opacity: 1; }
+
+  @keyframes rise { from { opacity: 0; transform: translateY(20px); } }
+
+  .card-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 10px; }
+  .card-head h3 { font-size: 16.5px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.4; }
+  .tag {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--purple); background: rgba(157,123,255,0.1);
+    border: 1px solid rgba(157,123,255,0.2); padding: 4px 10px; border-radius: 8px;
+    white-space: nowrap; margin-left: auto; flex-shrink: 0;
+  }
+  .card p.desc { color: var(--muted); font-size: 14px; line-height: 1.65; margin-bottom: 18px; }
+
+  .code-box {
+    position: relative; background: #08090d; border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 20px;
+    overflow: hidden; flex: 1; max-height: 120px;
+  }
+  .code-box::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 50px;
+    background: linear-gradient(transparent, #08090d); pointer-events: none;
+  }
+  .code-box pre {
+    font-family: var(--mono); font-size: 12.5px; line-height: 1.7;
+    color: #b4c0d6; white-space: pre-wrap; word-break: break-all;
+    overflow-y: auto; max-height: 88px; padding-right: 8px;
+  }
+  .code-box pre::-webkit-scrollbar { width: 4px; }
+  .code-box pre::-webkit-scrollbar-thumb { background: #2a3142; border-radius: 4px; }
+
+  .card-actions { display: flex; gap: 12px; }
+  .card-actions .btn { flex: 1; }
+
+  .empty {
+    grid-column: 1 / -1; text-align: center; padding: 100px 20px;
+    color: var(--muted); border: 1px dashed var(--border-strong);
+    border-radius: var(--radius); font-size: 15px; background: var(--surface);
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    border: none; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 650;
+    padding: 12px 22px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--blurple), #4752e0); color: #fff;
+    transition: all 0.25s; text-decoration: none;
+    box-shadow: 0 4px 15px rgba(88,101,242,0.3);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(88,101,242,0.4); filter: brightness(1.1); }
+  .btn:active { transform: translateY(0); }
+  .btn.ghost {
+    background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+    box-shadow: none;
+  }
+  .btn.ghost:hover { background: var(--surface-3); border-color: var(--border-strong); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+  .btn.sm { padding: 10px 16px; font-size: 13px; border-radius: 10px; }
+  .btn.danger { background: rgba(237,66,69,0.1); color: #ff7a7c; border: 1px solid rgba(237,66,69,0.25); box-shadow: none; }
+  .btn.danger:hover { background: rgba(237,66,69,0.2); box-shadow: 0 4px 15px rgba(237,66,69,0.2); }
+
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 40px; left: 50%; transform: translate(-50%, 30px);
+    background: var(--surface-3); border: 1px solid var(--border-strong);
+    color: var(--text); padding: 14px 24px; border-radius: 14px;
+    font-size: 14px; font-weight: 600; box-shadow: 0 20px 60px -15px rgba(0,0,0,0.9);
+    opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 300;
+    backdrop-filter: blur(10px);
+  }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  /* Modals & Panels */
+  .backdrop {
+    position: fixed; inset: 0; background: rgba(4,5,8,0.8);
+    backdrop-filter: blur(6px); opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 190;
+  }
+  .backdrop.show { opacity: 1; pointer-events: auto; }
+
+  .modal {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -46%) scale(0.95);
+    width: min(92vw, 400px); background: var(--surface);
+    border: 1px solid var(--border-strong); border-radius: 20px; padding: 32px;
+    opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 200; box-shadow: 0 40px 100px -20px rgba(0,0,0,0.95);
+  }
+  .modal.show { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
+  .modal h3 { font-size: 20px; font-weight: 750; margin-bottom: 8px; letter-spacing: -0.02em; }
+  .modal p { color: var(--muted); font-size: 14px; margin-bottom: 24px; line-height: 1.6; }
+  .modal input {
+    width: 100%; padding: 14px 16px; border-radius: 12px;
+    background: var(--surface-2); border: 1px solid var(--border-strong);
+    color: var(--text); font-family: inherit; font-size: 15px; outline: none; transition: border-color 0.2s;
+  }
+  .modal input:focus { border-color: var(--blurple); box-shadow: 0 0 0 3px rgba(88,101,242,0.15); }
+  .modal .row { display: flex; gap: 12px; margin-top: 24px; }
+  .modal .row .btn { flex: 1; }
+
+  /* Dev Panel Drawer */
+  .panel {
+    position: fixed; top: 0; right: 0; bottom: 0; width: min(96vw, 520px);
+    background: var(--surface); border-left: 1px solid var(--border-strong);
+    transform: translateX(102%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 200; display: flex; flex-direction: column;
+    box-shadow: -40px 0 100px -30px rgba(0,0,0,0.95);
+  }
+  .panel.show { transform: translateX(0); }
+
+  .panel-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 24px 30px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    background: var(--surface-2);
+  }
+  .panel-head h2 { font-size: 17px; font-weight: 750; letter-spacing: -0.01em; }
+  .panel-head h2 small { display: block; color: var(--muted); font-size: 12px; font-weight: 500; margin-top: 4px; letter-spacing: 0; }
+  .x-btn {
+    background: var(--surface-3); border: 1px solid var(--border);
+    color: var(--muted); width: 36px; height: 36px; border-radius: 10px;
+    cursor: pointer; font-size: 16px; line-height: 1; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .x-btn:hover { background: var(--border-strong); color: var(--text); }
+
+  .panel-body { overflow-y: auto; padding: 30px; flex: 1; display: flex; flex-direction: column; gap: 22px; }
+  .panel-body::-webkit-scrollbar { width: 8px; }
+  .panel-body::-webkit-scrollbar-thumb { background: #242a36; border-radius: 8px; }
+
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .field label { font-size: 11.5px; font-weight: 700; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
+  .field input, .field textarea {
+    width: 100%; padding: 12px 16px; border-radius: 10px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    color: var(--text); font-family: inherit; font-size: 14px; outline: none; transition: all 0.2s;
+  }
+  .field textarea { font-family: var(--mono); font-size: 12.5px; line-height: 1.6; resize: vertical; min-height: 100px; }
+  .field input:focus, .field textarea:focus { border-color: var(--blurple); box-shadow: 0 0 0 3px rgba(88,101,242,0.1); }
+
+  .divider { height: 1px; background: var(--border); margin: 8px 0; }
+  .panel h4 { font-size: 12px; font-weight: 750; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+
+  .dev-item {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 10px;
+    transition: border-color 0.2s;
+  }
+  .dev-item:hover { border-color: var(--border-strong); }
+  .dev-item .info { flex: 1; min-width: 0; }
+  .dev-item .info strong { display: block; font-size: 14px; font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dev-item .info span { font-size: 12px; color: var(--muted); }
+  .icon-btn {
+    background: transparent; border: 1px solid var(--border); color: var(--muted);
+    width: 34px; height: 34px; border-radius: 9px; cursor: pointer; font-size: 14px;
+    flex-shrink: 0; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+  }
+  .icon-btn:hover { background: var(--surface-3); color: var(--text); border-color: var(--border-strong); }
+  .icon-btn.danger:hover { background: rgba(237,66,69,0.15); color: #ff7a7c; border-color: rgba(237,66,69,0.3); }
+
+  .btn-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn-row .btn { flex: 1; min-width: 120px; }
+
+  /* Mobile Bottom Nav */
+  .mobile-nav {
+    display: none; position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(16, 18, 26, 0.95); backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border); padding: 12px 16px;
+    justify-content: space-around; z-index: 150;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+  .mobile-nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    color: var(--muted); text-decoration: none; font-size: 11px; font-weight: 650;
+    background: none; border: none; cursor: pointer; font-family: inherit; transition: color 0.2s;
+  }
+  .mobile-nav-item.active { color: var(--blurple-2); }
+  .mobile-nav-item svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .main-content { padding: 0 32px 120px; }
+  }
+  @media (max-width: 860px) {
+    body { display: block; }
+    .sidebar { display: none; }
+    .main-content { margin-left: 0; padding: 0 20px 120px; }
+    .mobile-nav { display: flex; }
+    .hero { padding: 60px 0 50px; }
+    h1 { font-size: 34px; }
+    .sub { font-size: 15px; }
+    .grid { grid-template-columns: 1fr; gap: 16px; }
+    .card { padding: 20px; }
+    .panel { width: 100vw; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient-bg"></div>
+
+<div class="app-container">
+  <!-- Sidebar (Desktop) -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="logo-dot"></span>
+      <span id="navBrand">Aetherius X Hub Community</span>
+    </div>
+    
+    <nav class="nav-links">
+      <button class="nav-link active" data-tab="home">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        Dashboard
+      </button>
+      <button class="nav-link" data-tab="scripts">
+        <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+        Loadstrings
+      </button>
+      <button class="nav-link" id="openDevBtnSidebar">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+        Dev Panel
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a class="btn" id="joinBtn" href="#" target="_blank" rel="noopener">Join Discord</a>
+      <div class="version-tag" id="verTrigger">v2.0.0</div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <section id="home" class="hero">
+      <div class="pill" id="memberPill">
+        <span class="live-dot"></span>
+        <b id="memberCount">—</b> members 
+        <span class="approx-badge" title="Discord API provides approximate counts">APPROX</span>
+      </div>
+      <h1>Aetherius X Hub <span>Community</span></h1>
+      <p class="sub" id="tagline">Premium loadstrings, kept up to date and ready to paste. No sketchy redirects, no dead links.</p>
+    </section>
+
+    <section id="scripts">
+      <div class="section-head">
+        <div>
+          <h2>Available loadstrings</h2>
+          <p>Click copy, paste into your executor, done.</p>
+        </div>
+        <span class="count-tag" id="lsCount">0 scripts</span>
+      </div>
+      <div class="grid" id="lsGrid"></div>
+    </section>
+  </main>
+</div>
+
+<!-- Mobile Bottom Nav -->
+<nav class="mobile-nav">
+  <button class="mobile-nav-item active" data-tab="home">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+    Home
+  </button>
+  <button class="mobile-nav-item" data-tab="scripts">
+    <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+    Scripts
+  </button>
+  <button class="mobile-nav-item" id="openDevBtnMobile">
+    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+    Dev
+  </button>
+  <a class="mobile-nav-item" id="joinBtnMobile" href="#" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3z"></path><path d="M6 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3z"></path></svg>
+    Discord
+  </a>
+</nav>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Password Modal -->
+<div class="backdrop" id="backdrop"></div>
+<div class="modal" id="pwModal">
+  <h3>Developer Access</h3>
+  <p>Enter the panel password to manage the site content and settings.</p>
+  <input type="password" id="pwInput" placeholder="Enter password..." autocomplete="off">
+  <div class="row">
+    <button class="btn ghost" id="pwCancel">Cancel</button>
+    <button class="btn" id="pwSubmit">Unlock Panel</button>
+  </div>
+</div>
+
+<!-- Dev Panel -->
+<aside class="panel" id="devPanel">
+  <div class="panel-head">
+    <h2>Dev Panel<small>All changes save automatically to this browser</small></h2>
+    <button class="x-btn" id="closePanel">✕</button>
+  </div>
+
+  <div class="panel-body">
+    <h4>Site Settings</h4>
+    <div class="field">
+      <label>Site Name</label>
+      <input id="f_siteName" type="text">
+    </div>
+    <div class="field">
+      <label>Tagline / Description</label>
+      <input id="f_tagline" type="text">
+    </div>
+    <div class="field">
+      <label>Discord Invite Code</label>
+      <input id="f_inviteCode" type="text" placeholder="e.g. WM7jy8hRgn">
+    </div>
+    <div class="field">
+      <label>Discord Invite URL</label>
+      <input id="f_inviteUrl" type="text" placeholder="https://discord.com/invite/...">
+    </div>
+    <div class="field">
+      <label>Fallback Member Count</label>
+      <input id="f_memberFallback" type="number" min="0" placeholder="Used if API fails">
+    </div>
+
+    <div class="divider"></div>
+    <h4>Manage Loadstrings</h4>
+    <div id="devList"></div>
+
+    <div class="divider"></div>
+    <h4 id="formTitle">Add New Loadstring</h4>
+    <div class="field">
+      <label>Name</label>
+      <input id="f_name" type="text" placeholder="Script name">
+    </div>
+    <div class="field">
+      <label>Tag (optional)</label>
+      <input id="f_tag" type="text" placeholder="e.g. Universal, Blox Fruits">
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea id="f_desc" placeholder="What does this script do?" style="font-family:inherit;font-size:13.5px;min-height:70px"></textarea>
+    </div>
+    <div class="field">
+      <label>Loadstring / Code</label>
+      <textarea id="f_code" placeholder='loadstring(game:HttpGet("..."))()'></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" id="saveLsBtn">Save Entry</button>
+      <button class="btn ghost" id="clearFormBtn">Clear Form</button>
+    </div>
+
+    <div class="divider"></div>
+    <div class="btn-row">
+      <button class="btn ghost" id="exportBtn">Export Data</button>
+      <button class="btn ghost" id="importBtn">Import Data</button>
+      <button class="btn danger" id="resetBtn">Reset All</button>
+    </div>
+    <input type="file" id="importFile" accept="application/json" hidden>
+  </div>
+</aside>
+
+<script>
+/* =========================================================
+   CONFIG & STORAGE
+   ========================================================= */
+const KEY = "aetherius_hub_v2";
+const PASSWORD = "1988";
+const uid = () => Math.random().toString(36).slice(2, 10);
+
+const DEFAULTS = {
+  siteName: "Aetherius X Hub Community",
+  tagline: "Premium loadstrings, kept up to date and ready to paste. No sketchy redirects, no dead links.",
+  inviteCode: "WM7jy8hRgn",
+  inviteUrl: "https://discord.com/invite/WM7jy8hRgn",
+  memberFallback: 1500,
+  loadstrings: [
+    {
+      id: uid(),
+      name: "Aetherius Universal ESP",
+      tag: "Universal",
+      description: "Highlights players through walls with names, distance, and health bars. Toggle with RightShift.",
+      code: 'loadstring(game:HttpGet("https://raw.githubusercontent.com/AetheriusX/Scripts/main/universal_esp.lua"))()'
+    },
+    {
+      id: uid(),
+      name: "Aetherius Auto Farm",
+      tag: "Blox Fruits",
+      description: "Farms mobs, quests, and chests automatically. Fully configurable via a sleek in-game UI.",
+      code: 'loadstring(game:HttpGet("https://raw.githubusercontent.com/AetheriusX/Scripts/main/autofarm.lua"))()'
+    },
+    {
+      id: uid(),
+      name: "Infinite Yield Admin",
+      tag: "Admin",
+      description: "The classic admin command suite. Hundreds of commands, minimal footprint, easy to use.",
+      code: 'loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()'
+    }
+  ]
+};
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return structuredClone(DEFAULTS);
+    const parsed = JSON.parse(raw);
+    return { ...structuredClone(DEFAULTS), ...parsed };
+  } catch {
+    return structuredClone(DEFAULTS);
+  }
+}
+
+let state = loadState();
+
+function saveState() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } 
+  catch (e) { console.warn("Save failed", e); }
+}
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({
+  "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+}[c]));
+const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "loadstring";
+
+let toastTimer;
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2500);
+}
+
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; } 
+  catch {
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch {}
+    document.body.removeChild(ta);
+    return ok;
+  }
+}
+
+function download(filename, content) {
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function renderSite() {
+  document.title = state.siteName;
+  $("navBrand").textContent = state.siteName;
+  $("tagline").textContent = state.tagline;
+  
+  const url = state.inviteUrl || "#";
+  $("joinBtn").href = url;
+  $("joinBtnMobile").href = url;
+}
+
+function renderLoadstrings() {
+  const grid = $("lsGrid");
+  const list = state.loadstrings || [];
+  $("lsCount").textContent = list.length + (list.length === 1 ? " script" : " scripts");
+
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty">No loadstrings yet. Add some from the dev panel.</div>';
+    return;
+  }
+
+  grid.innerHTML = "";
+  list.forEach((ls, i) => {
+    const card = document.createElement("article");
+    card.className = "card";
+    card.style.animationDelay = (i * 60) + "ms";
+    card.innerHTML = `
+      <div class="card-head">
+        <h3>${esc(ls.name)}</h3>
+        ${ls.tag ? `<span class="tag">${esc(ls.tag)}</span>` : ""}
+      </div>
+      ${ls.description ? `<p class="desc">${esc(ls.description)}</p>` : ""}
+      <div class="code-box"><pre><code></code></pre></div>
+      <div class="card-actions">
+        <button class="btn sm copy-btn">Copy</button>
+        <button class="btn ghost sm dl-btn">Download</button>
+      </div>
+    `;
+    card.querySelector("code").textContent = ls.code || "";
+
+    card.querySelector(".copy-btn").addEventListener("click", async (e) => {
+      const btn = e.currentTarget;
+      const ok = await copyText(ls.code || "");
+      if (ok) {
+        btn.textContent = "Copied!";
+        toast("Loadstring copied to clipboard");
+        setTimeout(() => (btn.textContent = "Copy"), 1500);
+      } else { toast("Copy failed — select it manually"); }
+    });
+
+    card.querySelector(".dl-btn").addEventListener("click", () => {
+      download(slug(ls.name) + ".lua", ls.code || "");
+      toast("Downloading " + slug(ls.name) + ".lua");
+    });
+    grid.appendChild(card);
+  });
+}
+
+/* =========================================================
+   DISCORD MEMBER COUNT (Approximate)
+   ========================================================= */
+async function fetchMembers() {
+  const el = $("memberCount");
+  const code = (state.inviteCode || "").trim();
+
+  if (!code) {
+    el.textContent = Number(state.memberFallback || 0).toLocaleString();
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      `https://discord.com/api/v9/invites/${encodeURIComponent(code)}?with_counts=true`,
+      { headers: { Accept: "application/json" } }
+    );
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    
+    const data = await res.json();
+    const total = data.approximate_member_count;
+    const online = data.approximate_presence_count;
+
+    if (typeof total === 'number') {
+      // Animate count
+      const start = parseInt(el.textContent.replace(/,/g, '')) || 0;
+      const duration = 1000;
+      const startTime = performance.now();
+      
+      function animate(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+        const current = Math.floor(start + (total - start) * eased);
+        el.textContent = current.toLocaleString();
+        if (progress < 1) requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+
+      // Update tooltip
+      const pill = el.closest('.pill');
+      if (pill) {
+        pill.title = `${total.toLocaleString()} total members (Discord API approx.)\n${online ? online.toLocaleString() + ' online now' : ''}`;
+      }
+      return;
+    }
+    throw new Error("No count in response");
+  } catch (err) {
+    console.warn("Member fetch failed:", err.message);
+    el.textContent = Number(state.memberFallback || 0).toLocaleString();
+  }
+}
+
+/* =========================================================
+   TAB / NAVIGATION LOGIC
+   ========================================================= */
+function switchTab(tabId) {
+  document.querySelectorAll('.nav-link, .mobile-nav-item').forEach(el => {
+    if (el.dataset.tab === tabId) el.classList.add('active');
+    else el.classList.remove('active');
+  });
+
+  const target = document.getElementById(tabId);
+  if (target) {
+    const yOffset = -30; 
+    const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  }
+}
+
+document.querySelectorAll('[data-tab]').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    switchTab(btn.dataset.tab);
+  });
+});
+
+// Scroll spy
+window.addEventListener('scroll', () => {
+  const sections = document.querySelectorAll('section[id]');
+  let current = 'home';
+  sections.forEach(sec => {
+    const top = sec.offsetTop - 120;
+    if (window.scrollY >= top) current = sec.id;
+  });
+  document.querySelectorAll('.nav-link, .mobile-nav-item').forEach(el => {
+    if (el.dataset.tab === current) el.classList.add('active');
+    else el.classList.remove('active');
+  });
+});
+
+/* =========================================================
+   DEV PANEL & MODAL LOGIC
+   ========================================================= */
+const backdrop = $("backdrop");
+const pwModal = $("pwModal");
+const devPanel = $("devPanel");
+
+function openPwModal() {
+  backdrop.classList.add("show");
+  pwModal.classList.add("show");
+  $("pwInput").value = "";
+  setTimeout(() => $("pwInput").focus(), 150);
+}
+
+function closePwModal() {
+  backdrop.classList.remove("show");
+  pwModal.classList.remove("show");
+}
+
+function closePanel() {
+  devPanel.classList.remove("show");
+  backdrop.classList.remove("show");
+}
+
+function openPanel() {
+  fillForm();
+  renderDevList();
+  backdrop.classList.add("show");
+  devPanel.classList.add("show");
+}
+
+$("pwCancel").addEventListener("click", closePwModal);
+$("pwSubmit").addEventListener("click", tryUnlock);
+$("pwInput").addEventListener("keydown", (e) => { if (e.key === "Enter") tryUnlock(); });
+
+function tryUnlock() {
+  if ($("pwInput").value === PASSWORD) {
+    closePwModal();
+    openPanel();
+  } else {
+    $("pwInput").value = "";
+    $("pwInput").placeholder = "Wrong password. Try again.";
+    $("pwInput").style.borderColor = "var(--red)";
+    $("pwInput").style.boxShadow = "0 0 0 3px rgba(237,66,69,0.15)";
+    setTimeout(() => {
+      $("pwInput").placeholder = "Enter password...";
+      $("pwInput").style.borderColor = "";
+      $("pwInput").style.boxShadow = "";
+    }, 1500);
+  }
+}
+
+backdrop.addEventListener("click", () => { closePwModal(); closePanel(); });
+$("closePanel").addEventListener("click", closePanel);
+
+$("openDevBtnSidebar").addEventListener("click", openPwModal);
+$("openDevBtnMobile").addEventListener("click", openPwModal);
+
+// Shortcut: Ctrl+Shift+D
+document.addEventListener("keydown", (e) => {
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "d") {
+    e.preventDefault();
+    devPanel.classList.contains("show") ? closePanel() : openPwModal();
+  }
+  if (e.key === "Escape") { closePwModal(); closePanel(); }
+});
+
+// Footer version click (5 times)
+let verClicks = 0, verTimer;
+$("verTrigger").addEventListener("click", () => {
+  verClicks++;
+  clearTimeout(verTimer);
+  verTimer = setTimeout(() => (verClicks = 0), 1200);
+  if (verClicks >= 5) { verClicks = 0; openPwModal(); }
+});
+
+/* =========================================================
+   DEV PANEL LOGIC
+   ========================================================= */
+let editingId = null;
+
+function fillForm() {
+  $("f_siteName").value = state.siteName;
+  $("f_tagline").value = state.tagline;
+  $("f_inviteCode").value = state.inviteCode;
+  $("f_inviteUrl").value = state.inviteUrl;
+  $("f_memberFallback").value = state.memberFallback;
+}
+
+function clearEntryForm() {
+  editingId = null;
+  $("f_name").value = "";
+  $("f_tag").value = "";
+  $("f_desc").value = "";
+  $("f_code").value = "";
+  $("formTitle").textContent = "Add New Loadstring";
+  $("saveLsBtn").textContent = "Save Entry";
+}
+
+function renderDevList() {
+  const box = $("devList");
+  const list = state.loadstrings || [];
+
+  if (!list.length) {
+    box.innerHTML = '<p style="color:var(--muted);font-size:13px;text-align:center;padding:10px 0;">No loadstrings added yet.</p>';
+    return;
+  }
+
+  box.innerHTML = "";
+  list.forEach((ls) => {
+    const row = document.createElement("div");
+    row.className = "dev-item";
+    row.innerHTML = `
+      <div class="info">
+        <strong>${esc(ls.name)}</strong>
+        <span>${esc(ls.tag || "No tag")}</span>
+      </div>
+      <button class="icon-btn edit" title="Edit">✎</button>
+      <button class="icon-btn danger del" title="Delete">🗑</button>
+    `;
+    row.querySelector(".edit").addEventListener("click", () => {
+      editingId = ls.id;
+      $("f_name").value = ls.name || "";
+      $("f_tag").value = ls.tag || "";
+      $("f_desc").value = ls.description || "";
+      $("f_code").value = ls.code || "";
+      $("formTitle").textContent = "Edit Loadstring";
+      $("saveLsBtn").textContent = "Update Entry";
+      $("f_name").focus();
+    });
+    row.querySelector(".del").addEventListener("click", () => {
+      if (!confirm(`Delete "${ls.name}"?`)) return;
+      state.loadstrings = state.loadstrings.filter((x) => x.id !== ls.id);
+      saveState();
+      renderDevList();
+      renderLoadstrings();
+      if (editingId === ls.id) clearEntryForm();
+      toast("Entry deleted");
+    });
+    box.appendChild(row);
+  });
+}
+
+$("saveLsBtn").addEventListener("click", () => {
+  const name = $("f_name").value.trim();
+  const code = $("f_code").value.trim();
+  if (!name) return toast("Please give the script a name");
+  if (!code) return toast("The code field is empty");
+
+  const entry = {
+    id: editingId || uid(),
+    name,
+    tag: $("f_tag").value.trim(),
+    description: $("f_desc").value.trim(),
+    code
+  };
+
+  if (editingId) {
+    const idx = state.loadstrings.findIndex((x) => x.id === editingId);
+    if (idx > -1) state.loadstrings[idx] = entry;
+    toast("Entry updated successfully");
+  } else {
+    state.loadstrings.push(entry);
+    toast("New entry added");
+  }
+  saveState();
+  clearEntryForm();
+  renderDevList();
+  renderLoadstrings();
+});
+
+$("clearFormBtn").addEventListener("click", clearEntryForm);
+
+["f_siteName", "f_tagline", "f_inviteCode", "f_inviteUrl", "f_memberFallback"].forEach((id) => {
+  $(id).addEventListener("input", () => {
+    state.siteName = $("f_siteName").value || "Aetherius X Hub Community";
+    state.tagline = $("f_tagline").value;
+    state.inviteCode = $("f_inviteCode").value.trim();
+    state.inviteUrl = $("f_inviteUrl").value.trim();
+    state.memberFallback = Number($("f_memberFallback").value) || 0;
+    saveState();
+    renderSite();
+  });
+});
+
+let inviteTimer;
+$("f_inviteCode").addEventListener("input", () => {
+  clearTimeout(inviteTimer);
+  inviteTimer = setTimeout(fetchMembers, 1000);
+});
+
+$("exportBtn").addEventListener("click", () => {
+  download("aetherius-hub-backup.json", JSON.stringify(state, null, 2));
+  toast("Data exported successfully");
+});
+$("importBtn").addEventListener("click", () => $("importFile").click());
+$("importFile").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      state = { ...structuredClone(DEFAULTS), ...data };
+      if (!Array.isArray(state.loadstrings)) state.loadstrings = [];
+      saveState(); renderSite(); renderLoadstrings(); fillForm(); renderDevList(); clearEntryForm(); fetchMembers();
+      toast("Backup imported successfully");
+    } catch { toast("Invalid JSON file"); }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+});
+
+$("resetBtn").addEventListener("click", () => {
+  if (!confirm("Reset everything back to defaults? This cannot be undone.")) return;
+  state = structuredClone(DEFAULTS);
+  saveState(); renderSite(); renderLoadstrings(); fillForm(); renderDevList(); clearEntryForm(); fetchMembers();
+  toast("Reset to defaults");
+});
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+renderSite();
+renderLoadstrings();
+fetchMembers();
+setInterval(fetchMembers, 5 * 60 * 1000);
+</script>
+</body>
+</html>
